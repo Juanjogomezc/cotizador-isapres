@@ -979,9 +979,7 @@
   }
   lightBtn.addEventListener('click', () => setTheme('light'));
   darkBtn.addEventListener('click', () => setTheme('dark'));
-  if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches){
-    setTheme('dark');
-  }
+  setTheme('light'); // claro por defecto, sin importar la preferencia del sistema
 
   // ---- Mobile nav ----
   const burger = document.getElementById('burgerBtn');
