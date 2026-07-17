@@ -137,7 +137,10 @@
     .nav-links a:first-child{border-top:none;}
     .burger{display:block;}
     .nav-cta .btn-primary{padding:10px 16px; font-size:.85rem;}
-    .nav-cta{gap:10px;}
+    .nav-cta{gap:8px;}
+  }
+  @media (max-width:560px){
+    .nav-contact-btn{display:none;}
   }
 
   /* ---------- HERO ---------- */
@@ -487,7 +490,8 @@
           <button type="button" id="lightBtn" class="active" aria-pressed="true" title="Fondo blanco">☀</button>
           <button type="button" id="darkBtn" aria-pressed="false" title="Fondo negro">☾</button>
         </div>
-        <a href="#cotizar" class="btn btn-primary">Cotizar isapres</a>
+        <a href="#cotizar" class="btn btn-ghost nav-contact-btn">Contactar asesor</a>
+        <a href="#cotizar" class="btn btn-primary" id="cotizarAhoraBtn">Cotizar ahora</a>
         <button class="burger" id="burgerBtn" aria-label="Abrir menú"><span></span><span></span><span></span></button>
       </div>
     </nav>
