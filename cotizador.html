@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cotizador | Compara todas las Isapres</title>
+<meta name="description" content="Cotizador avanzado: compara planes de isapre por beneficiarios, red de prestadores y cobertura hospitalaria/ambulatoria.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FFFFFF; --bg-alt:#F6F7F9; --surface:#FFFFFF;
+    --ink-900:#0E1216; --ink-600:#57616E; --line:#E3E6EB;
+    --navy-900:#050708; --navy-800:#12151A;
+    --blue-600:#1D63C7; --blue-500:#2E7BEA; --accent:#2E7BEA; --accent-600:#1A5CC9;
+    --teal-500:#0FA98E; --teal-100:#E3F7F2;
+    --red-500:#E5484D; --red-100:#FDECEC;
+    --amber-500:#D97706; --amber-100:#FEF3E2;
+    --shadow-color:rgba(10,14,20,.12);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Inter', sans-serif; color:var(--ink-900); background:var(--bg-alt); line-height:1.4;}
+  h1,h2,h3,h4{font-family:'Space Grotesk', sans-serif; font-weight:700;}
+  a{color:inherit; text-decoration:none;}
+  button{font-family:'Inter', sans-serif; cursor:pointer;}
+  .icon{width:16px; height:16px; stroke:currentColor; stroke-width:2; fill:none; stroke-linecap:round; stroke-linejoin:round; flex-shrink:0;}
+
+  /* ---- TOPBAR ---- */
+  .topbar{
+    background:var(--surface); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; justify-content:space-between;
+    padding:12px 24px; gap:20px; flex-wrap:wrap; position:sticky; top:0; z-index:40;
+  }
+  .topbar-left{display:flex; align-items:center; gap:14px;}
+  .tb-logo{display:flex; align-items:center; gap:8px; font-weight:700; font-size:1.05rem;}
+  .tb-logo .mark{width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,var(--navy-800),var(--blue-500)); display:flex; align-items:center; justify-content:center;}
+  .tb-logo .mark svg{width:16px; height:16px; stroke:white; stroke-width:2.4;}
+  .tb-tab{
+    display:flex; align-items:center; gap:6px; background:var(--bg-alt); border:1px solid var(--line);
+    border-radius:100px; padding:7px 14px; font-size:.82rem; font-weight:700; color:var(--ink-900);
+  }
+  .topbar-right{display:flex; align-items:center; gap:14px;}
+  .uf-badge{
+    display:flex; align-items:center; gap:6px; background:var(--teal-100); color:var(--teal-500);
+    padding:7px 14px; border-radius:100px; font-family:'IBM Plex Mono', monospace; font-size:.8rem; font-weight:700;
+  }
+  .user-chip{display:flex; align-items:center; gap:8px; font-size:.85rem; font-weight:600;}
+  .user-avatar{width:30px; height:30px; border-radius:50%; background:var(--accent); color:white; display:flex; align-items:center; justify-content:center; font-size:.75rem; font-weight:700;}
+  .back-link{display:flex; align-items:center; gap:6px; font-size:.82rem; font-weight:700; color:var(--ink-600);}
+  .back-link:hover{color:var(--accent);}
+
+  /* ---- TOOLBAR (búsqueda / rango / orden / paginación) ---- */
+  .toolbar{
+    background:var(--surface); border-bottom:1px solid var(--line);
+    display:flex; align-items:center; gap:18px; padding:14px 24px; flex-wrap:wrap;
+  }
+  .search-box{
+    display:flex; align-items:center; gap:8px; background:var(--bg-alt); border:1px solid var(--line);
+    border-radius:12px; padding:9px 14px; min-width:220px; flex:1 1 220px;
+  }
+  .search-box input{border:none; background:none; outline:none; font-size:.88rem; width:100%; color:var(--ink-900);}
+  .range-box{flex:1 1 260px; min-width:220px;}
+  .range-box .range-labels{display:flex; justify-content:space-between; font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--ink-600); margin-bottom:4px;}
+  .dual-range{position:relative; height:26px;}
+  .dual-range input[type=range]{
+    position:absolute; width:100%; top:10px; height:4px; -webkit-appearance:none; background:none; pointer-events:none;
+  }
+  .dual-range input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; pointer-events:all; width:16px; height:16px; border-radius:50%;
+    background:var(--accent); border:3px solid white; box-shadow:0 2px 6px rgba(0,0,0,.3); cursor:pointer;
+  }
+  .dual-range .track{position:absolute; top:10px; height:4px; width:100%; background:var(--line); border-radius:4px;}
+  .dual-range .track-fill{position:absolute; top:10px; height:4px; background:var(--accent); border-radius:4px;}
+  .sort-select, .pagesize-select{
+    border:1px solid var(--line); border-radius:10px; padding:9px 12px; font-size:.82rem; background:var(--surface); color:var(--ink-900);
+  }
+  .pager{display:flex; align-items:center; gap:6px; font-size:.82rem; font-weight:600;}
+  .pager button{
+    width:30px; height:30px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink-900);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .pager button:disabled{opacity:.4; cursor:not-allowed;}
+  .pager span{font-family:'IBM Plex Mono', monospace; color:var(--ink-600);}
+  .view-toggle{display:flex; gap:4px; background:var(--bg-alt); border:1px solid var(--line); border-radius:10px; padding:4px;}
+  .view-toggle button{width:30px; height:26px; border:none; background:none; border-radius:7px; color:var(--ink-600); display:flex; align-items:center; justify-content:center;}
+  .view-toggle button.active{background:var(--surface); color:var(--accent); box-shadow:0 2px 6px var(--shadow-color);}
+
+  /* ---- RESULTS SUMMARY BAR ---- */
+  .summary-bar{
+    display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap;
+    padding:12px 24px; background:var(--bg-alt);
+  }
+  .summary-count{font-size:.85rem; font-weight:700; color:var(--ink-900);}
+  .chips{display:flex; align-items:center; gap:8px; flex-wrap:wrap; flex:1;}
+  .chip{
+    display:flex; align-items:center; gap:6px; background:var(--surface); border:1px solid var(--line);
+    border-radius:100px; padding:5px 10px 5px 12px; font-size:.76rem; font-weight:700; color:var(--ink-900);
+  }
+  .chip button{border:none; background:none; color:var(--ink-600); font-size:.85rem; line-height:1;}
+  .clear-btn{
+    background:var(--red-100); color:var(--red-500); border:none; border-radius:100px; padding:8px 16px;
+    font-size:.8rem; font-weight:700;
+  }
+
+  /* ---- LAYOUT ---- */
+  .app-layout{display:grid; grid-template-columns:280px 1fr; gap:20px; padding:20px 24px; align-items:start;}
+  .filters-col{display:flex; flex-direction:column; gap:14px; position:sticky; top:130px;}
+  .filter-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px;}
+  .filter-card summary{
+    display:flex; align-items:center; justify-content:space-between; cursor:pointer; list-style:none;
+    font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-900);
+  }
+  .filter-card summary::-webkit-details-marker{display:none;}
+  .filter-card summary::after{content:"▾"; color:var(--ink-600); font-size:.7rem;}
+  .filter-card[open] summary::after{content:"▴";}
+  .filter-card .body{margin-top:14px; display:flex; flex-direction:column; gap:10px;}
+
+  .beneficiario-row{
+    display:grid; grid-template-columns:1fr 64px 50px 26px; gap:6px; align-items:center;
+    background:var(--bg-alt); border-radius:10px; padding:8px 10px;
+  }
+  .beneficiario-row select, .beneficiario-row input{
+    border:1px solid var(--line); border-radius:8px; padding:6px 8px; font-size:.78rem; background:var(--surface); color:var(--ink-900);
+  }
+  .beneficiario-row .factor{font-family:'IBM Plex Mono', monospace; font-size:.78rem; font-weight:700; color:var(--accent); text-align:center;}
+  .beneficiario-row .rm-row{border:none; background:none; color:var(--ink-600); font-size:.9rem;}
+  .add-beneficiario-row{display:flex; gap:8px;}
+  .add-beneficiario-row button{
+    flex:1; border:1px dashed var(--line); background:var(--bg-alt); border-radius:10px; padding:8px; font-size:.76rem; font-weight:700; color:var(--ink-600);
+  }
+  .total-factorial{
+    display:flex; justify-content:space-between; align-items:center; background:var(--navy-900); color:white;
+    border-radius:10px; padding:10px 14px; font-size:.8rem; font-weight:700;
+  }
+  .total-factorial b{font-family:'IBM Plex Mono', monospace; color:var(--teal-500);}
+
+  .check-row{display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:.82rem; font-weight:600;}
+  .check-row label{display:flex; align-items:center; gap:8px;}
+  .check-row input{width:16px; height:16px; accent-color:var(--accent);}
+  .check-row .count{font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--ink-600); font-weight:600;}
+  .filter-total{font-size:.75rem; color:var(--ink-600); text-align:right; font-family:'IBM Plex Mono', monospace;}
+
+  .pct-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:6px;}
+  .pct-btn{
+    border:1px solid var(--line); background:var(--bg-alt); border-radius:8px; padding:6px 0; font-size:.74rem; font-weight:700; color:var(--ink-600);
+  }
+  .pct-btn.active{background:var(--accent); color:white; border-color:var(--accent);}
+  .toggle-row{display:flex; align-items:center; gap:8px; font-size:.8rem; font-weight:600;}
+  .limpiar-filtro{
+    width:100%; background:var(--accent); color:white; border:none; border-radius:10px; padding:8px; font-size:.78rem; font-weight:700; margin-top:4px;
+  }
+
+  /* ---- RESULTS ---- */
+  .results-col{display:flex; flex-direction:column; gap:14px;}
+  .plan-card{
+    background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px 20px;
+    display:grid; grid-template-columns:auto 1fr auto auto; gap:16px; align-items:center;
+  }
+  .plan-rank{
+    width:30px; height:30px; border-radius:50%; background:var(--bg-alt); color:var(--ink-600);
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:.8rem;
+  }
+  .plan-main{display:flex; flex-direction:column; gap:4px;}
+  .plan-main-top{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
+  .plan-isapre-icon{
+    width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center;
+    color:white; font-size:.7rem; font-weight:700; font-family:'Space Grotesk', sans-serif;
+  }
+  .plan-isapre-name{font-weight:700; font-size:.9rem;}
+  .plan-code{font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--ink-600);}
+  .plan-tags{display:flex; gap:6px; flex-wrap:wrap;}
+  .plan-tag{font-size:.68rem; font-weight:700; padding:3px 9px; border-radius:100px; background:var(--bg-alt); color:var(--ink-600);}
+  .plan-tag.tipo-preferente{background:var(--teal-100); color:var(--teal-500);}
+  .plan-tag.tipo-cerrado{background:var(--amber-100); color:var(--amber-500);}
+  .plan-tag.tipo-libre{background:var(--blue-500); color:white;}
+  .plan-price{text-align:center; min-width:100px;}
+  .plan-price .uf{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.2rem;}
+  .plan-price .clp{font-family:'IBM Plex Mono', monospace; font-size:.76rem; color:var(--accent);}
+  .plan-price small{display:block; font-size:.65rem; color:var(--ink-600); text-transform:uppercase; letter-spacing:.04em;}
+  .plan-actions{display:flex; gap:6px;}
+  .plan-actions button{
+    width:34px; height:34px; border-radius:9px; border:1px solid var(--line); background:var(--bg-alt); color:var(--ink-600);
+    display:flex; align-items:center; justify-content:center;
+  }
+  .plan-actions button:hover{background:var(--accent); color:white; border-color:var(--accent);}
+
+  .plan-coverage-row{grid-column:1 / -1; display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:14px; border-top:1px solid var(--line); padding-top:14px;}
+  .coverage-block h5{display:flex; align-items:center; gap:6px; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-600); margin-bottom:8px;}
+  .coverage-bar{display:flex; height:8px; border-radius:6px; overflow:hidden; margin-bottom:10px; background:var(--bg-alt);}
+  .coverage-bar span{height:100%;}
+  .coverage-list{display:flex; flex-direction:column; gap:6px;}
+  .coverage-list div{display:flex; justify-content:space-between; font-size:.78rem; color:var(--ink-600);}
+  .coverage-list b{color:var(--accent); font-family:'IBM Plex Mono', monospace; font-weight:700; margin-right:8px;}
+
+  .empty-state{
+    text-align:center; padding:60px 20px; background:var(--surface); border:1px dashed var(--line); border-radius:16px; color:var(--ink-600);
+  }
+
+  .example-banner{
+    background:var(--amber-100); color:var(--amber-500); font-size:.78rem; font-weight:700;
+    padding:10px 16px; border-radius:10px; margin:0 24px 4px; text-align:center;
+  }
+
+  @media (max-width:960px){
+    .app-layout{grid-template-columns:1fr;}
+    .filters-col{position:static;}
+    .plan-card{grid-template-columns:1fr; text-align:left;}
+    .plan-coverage-row{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-left">
+    <a href="index.html" class="tb-logo"><span class="mark"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></span>Todas las Isapres</a>
+    <span class="tb-tab"><svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg> Cotizador</span>
+  </div>
+  <div class="topbar-right">
+    <a href="index.html" class="back-link"><svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Volver al sitio</a>
+    <span class="uf-badge"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> UF hoy: <span id="ufTopbar">$39.000</span></span>
+    <span class="user-chip"><span class="user-avatar">IN</span> Invitado</span>
+  </div>
+</div>
+
+<div class="toolbar">
+  <div class="search-box">
+    <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar planes, isapre o código...">
+  </div>
+  <div class="range-box">
+    <div class="range-labels"><span id="rangeMinLabel">$76.800</span><span id="rangeMaxLabel">1,50 UF/mes</span></div>
+    <div class="dual-range">
+      <div class="track"></div>
+      <div class="track-fill" id="trackFill"></div>
+      <input type="range" id="rangeMin" min="1" max="12" step="0.1" value="1">
+      <input type="range" id="rangeMax" min="1" max="12" step="0.1" value="12">
+    </div>
+  </div>
+  <select class="sort-select" id="sortSelect">
+    <option value="precio_asc">Menor precio</option>
+    <option value="precio_desc">Mayor precio</option>
+    <option value="cobertura_desc">Mayor cobertura</option>
+  </select>
+  <select class="pagesize-select" id="pageSizeSelect">
+    <option value="5">5 / página</option>
+    <option value="10" selected>10 / página</option>
+    <option value="20">20 / página</option>
+  </select>
+  <div class="pager">
+    <button id="prevPageBtn" aria-label="Anterior">‹</button>
+    <span id="pageLabel">1 / 1</span>
+    <button id="nextPageBtn" aria-label="Siguiente">›</button>
+  </div>
+  <div class="view-toggle">
+    <button id="viewListBtn" class="active" title="Vista lista"><svg class="icon" viewBox="0 0 24 24"><path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/></svg></button>
+    <button id="viewGridBtn" title="Vista grilla"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+  </div>
+</div>
+
+<div class="summary-bar">
+  <span class="summary-count" id="summaryCount">0 de 0 planes</span>
+  <div class="chips" id="chipsRow"></div>
+  <button class="clear-btn" id="clearFiltersBtn">Limpiar filtros</button>
+</div>
+
+<p class="example-banner">Estos planes y prestadores son <b>datos de ejemplo</b>. Aquí se conectará tu base real de planes y convenios.</p>
+
+<div class="app-layout">
+  <aside class="filters-col">
+
+    <details class="filter-card" open>
+      <summary>Beneficiarios</summary>
+      <div class="body">
+        <div id="beneficiariosList"></div>
+        <div class="add-beneficiario-row">
+          <button type="button" id="addCotizanteBtn">+ Cotizante</button>
+          <button type="button" id="addCargaBtn">+ Carga</button>
+        </div>
+        <div class="total-factorial">Total factorial <b id="totalFactorial">1.00</b></div>
+      </div>
+    </details>
+
+    <details class="filter-card" open>
+      <summary>Isapres</summary>
+      <div class="body" id="isapresFilterBody"></div>
+    </details>
+
+    <details class="filter-card">
+      <summary>Zonas</summary>
+      <div class="body" id="zonasFilterBody"></div>
+    </details>
+
+    <details class="filter-card">
+      <summary>Tipo de plan</summary>
+      <div class="body" id="tipoPlanFilterBody"></div>
+    </details>
+
+    <details class="filter-card">
+      <summary>Cobertura hospitalaria</summary>
+      <div class="body">
+        <div class="pct-grid" id="pctHospGrid"></div>
+        <label class="toggle-row"><input type="checkbox" id="todosPrestadoresHosp"> Todos los prestadores</label>
+        <button type="button" class="limpiar-filtro" data-clear="hosp">Limpiar filtro</button>
+      </div>
+    </details>
+
+    <details class="filter-card">
+      <summary>Cobertura ambulatoria</summary>
+      <div class="body">
+        <div class="pct-grid" id="pctAmbGrid"></div>
+        <label class="toggle-row"><input type="checkbox" id="todosPrestadoresAmb"> Todos los prestadores</label>
+        <button type="button" class="limpiar-filtro" data-clear="amb">Limpiar filtro</button>
+      </div>
+    </details>
+
+  </aside>
+
+  <main class="results-col" id="resultsCol"></main>
+</div>
+
+<script>
+// =========================================================
+// DATOS DE EJEMPLO — reemplazar por tu base real de planes
+// =========================================================
+const ISAPRES = [
+  { name:'Banmédica', color:'#1D63C7' },
+  { name:'Consalud', color:'#0FA98E' },
+  { name:'Colmena Golden Cross', color:'#D97706' },
+  { name:'Cruz Blanca', color:'#E5484D' },
+  { name:'Vida Tres', color:'#7C3AED' },
+  { name:'Nueva Masvida', color:'#DB2777' },
+  { name:'Esencial', color:'#64748B' }
+];
+const ZONAS = ['RM','Norte','Octava','Quinta','Sur','Regional - CB Colmena','Centro'];
+const TIPOS_PLAN = ['Cerrado','Libre Elección','Preferente'];
+const PRESTADORES_POOL = [
+  'Clínica RedSalud Santiago','Clínica RedSalud Providencia','Clínica Dávila','Clínica Dávila Vespucio',
+  'Hospital Clínico Universidad de Chile','Centros Médicos RedSalud','Clínica Bupa Santiago',
+  'Clínica Alemana','Clínica Las Condes','Clínica Indisa','Clínica Santa María'
+];
+
+// PRNG determinístico para que los datos de ejemplo sean estables entre recargas
+function seededRandom(seed){
+  let s = seed;
+  return function(){
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
+  };
+}
+const rand = seededRandom(42);
+function pick(arr){ return arr[Math.floor(rand()*arr.length)]; }
+function pickN(arr, n){
+  const copy = [...arr];
+  const out = [];
+  for (let i=0;i<n && copy.length;i++){
+    const idx = Math.floor(rand()*copy.length);
+    out.push(copy.splice(idx,1)[0]);
+  }
+  return out;
+}
+
+function buildExamplePlans(){
+  const plans = [];
+  let id = 1;
+  ISAPRES.forEach(isap => {
+    const nPlanes = 3 + Math.floor(rand()*2); // 3-4 planes por isapre
+    for (let i=0;i<nPlanes;i++){
+      const tipoPlan = pick(TIPOS_PLAN);
+      const zona = pick(ZONAS);
+      const baseUF = 1.5 + rand()*4.5;
+      const deducible = rand() > 0.5;
+      const hospPct = [40,50,60,70,80,90][Math.floor(rand()*6)];
+      const ambPct = [40,50,60,70,80,90][Math.floor(rand()*6)];
+      const hospPrestadores = pickN(PRESTADORES_POOL, 4).map((p,idx) => ({ name:p, pct: Math.max(20, hospPct - idx*10) }));
+      const ambPrestadores = pickN(PRESTADORES_POOL, 4).map((p,idx) => ({ name:p, pct: Math.max(20, ambPct - idx*10) }));
+      plans.push({
+        id: id++,
+        isapre: isap.name,
+        color: isap.color,
+        planCode: `${['CORE','VITAL','FULL','FLEX','BASE'][Math.floor(rand()*5)]} ${10+Math.floor(rand()*40)} 01 26`,
+        tipoPlan, zona, baseUF, deducible,
+        hospPct, ambPct, hospPrestadores, ambPrestadores
+      });
+    }
+  });
+  return plans;
+}
+const ALL_PLANS = buildExamplePlans();
+
+// =========================================================
+// BENEFICIARIOS (cotizante + cargas) con tabla de factores ILUSTRATIVA
+// =========================================================
+let beneficiarios = [{ tipo:'Cotizante', edad:35, sexo:'M' }];
+
+function getFactor(edad, sexo){
+  // Tabla ilustrativa/referencial de ejemplo. Reemplazar por la tabla de factores real vigente.
+  let base;
+  if (edad <= 2) base = 0.4;
+  else if (edad <= 5) base = 0.6;
+  else if (edad <= 17) base = 0.7;
+  else if (edad <= 29) base = sexo === 'F' ? 1.4 : 1.0;
+  else if (edad <= 39) base = sexo === 'F' ? 1.6 : 1.1;
+  else if (edad <= 54) base = sexo === 'F' ? 1.5 : 1.2;
+  else if (edad <= 64) base = 1.8;
+  else base = 2.6;
+  return base;
+}
+
+function renderBeneficiarios(){
+  const list = document.getElementById('beneficiariosList');
+  list.innerHTML = beneficiarios.map((b, i) => `
+    <div class="beneficiario-row">
+      <select data-idx="${i}" class="bf-tipo" ${i===0 ? 'disabled' : ''}>
+        <option value="Cotizante" ${b.tipo==='Cotizante'?'selected':''}>Cotizante</option>
+        <option value="Carga" ${b.tipo==='Carga'?'selected':''}>Carga</option>
+      </select>
+      <input type="number" class="bf-edad" data-idx="${i}" min="0" max="99" value="${b.edad}">
+      <select class="bf-sexo" data-idx="${i}">
+        <option value="M" ${b.sexo==='M'?'selected':''}>M</option>
+        <option value="F" ${b.sexo==='F'?'selected':''}>F</option>
+      </select>
+      <button type="button" class="rm-row" data-idx="${i}" ${i===0?'style="visibility:hidden;"':''}>✕</button>
+    </div>
+  `).join('');
+
+  list.querySelectorAll('.bf-tipo').forEach(el => el.addEventListener('change', e => {
+    beneficiarios[+e.target.dataset.idx].tipo = e.target.value;
+    updateFactorial();
+  }));
+  list.querySelectorAll('.bf-edad').forEach(el => el.addEventListener('input', e => {
+    beneficiarios[+e.target.dataset.idx].edad = parseInt(e.target.value,10) || 0;
+    updateFactorial();
+  }));
+  list.querySelectorAll('.bf-sexo').forEach(el => el.addEventListener('change', e => {
+    beneficiarios[+e.target.dataset.idx].sexo = e.target.value;
+    updateFactorial();
+  }));
+  list.querySelectorAll('.rm-row').forEach(el => el.addEventListener('click', e => {
+    beneficiarios.splice(+e.target.dataset.idx, 1);
+    renderBeneficiarios();
+    updateFactorial();
+  }));
+  updateFactorial();
+}
+
+function updateFactorial(){
+  const total = beneficiarios.reduce((sum, b) => sum + getFactor(b.edad, b.sexo), 0);
+  document.getElementById('totalFactorial').textContent = total.toFixed(2);
+  renderResults();
+}
+
+document.getElementById('addCotizanteBtn').addEventListener('click', () => {
+  beneficiarios.push({ tipo:'Cotizante', edad:35, sexo:'M' });
+  renderBeneficiarios();
+});
+document.getElementById('addCargaBtn').addEventListener('click', () => {
+  beneficiarios.push({ tipo:'Carga', edad:10, sexo:'M' });
+  renderBeneficiarios();
+});
+
+// =========================================================
+// FILTROS: isapres / zonas / tipo de plan / cobertura %
+// =========================================================
+const state = {
+  search:'', priceMin:1, priceMax:12,
+  isapres: new Set(ISAPRES.map(i=>i.name)),
+  zonas: new Set(),
+  tipos: new Set(),
+  hospMin: 0, ambMin: 0,
+  sort:'precio_asc', page:1, pageSize:10, view:'list'
+};
+
+function countPlans(predicateExtra){
+  return ALL_PLANS.filter(p => (predicateExtra ? predicateExtra(p) : true)).length;
+}
+
+function renderIsapresFilter(){
+  const body = document.getElementById('isapresFilterBody');
+  body.innerHTML = ISAPRES.map(is => {
+    const count = countPlans(p => p.isapre === is.name);
+    return `<div class="check-row"><label><input type="checkbox" class="ck-isapre" value="${is.name}" ${state.isapres.has(is.name)?'checked':''}> ${is.name}</label><span class="count">${count}</span></div>`;
+  }).join('') + `<div class="filter-total">Total planes: ${ALL_PLANS.length}</div>`;
+  body.querySelectorAll('.ck-isapre').forEach(el => el.addEventListener('change', e => {
+    e.target.checked ? state.isapres.add(e.target.value) : state.isapres.delete(e.target.value);
+    state.page = 1; renderAll();
+  }));
+}
+
+function renderZonasFilter(){
+  const body = document.getElementById('zonasFilterBody');
+  body.innerHTML = ZONAS.map(z => {
+    const count = countPlans(p => p.zona === z);
+    return `<div class="check-row"><label><input type="checkbox" class="ck-zona" value="${z}" ${state.zonas.has(z)?'checked':''}> ${z}</label><span class="count">${count}</span></div>`;
+  }).join('');
+  body.querySelectorAll('.ck-zona').forEach(el => el.addEventListener('change', e => {
+    e.target.checked ? state.zonas.add(e.target.value) : state.zonas.delete(e.target.value);
+    state.page = 1; renderAll();
+  }));
+}
+
+function renderTipoPlanFilter(){
+  const body = document.getElementById('tipoPlanFilterBody');
+  body.innerHTML = TIPOS_PLAN.map(t => {
+    const count = countPlans(p => p.tipoPlan === t);
+    return `<div class="check-row"><label><input type="checkbox" class="ck-tipo" value="${t}" ${state.tipos.has(t)?'checked':''}> ${t}</label><span class="count">${count}</span></div>`;
+  }).join('');
+  body.querySelectorAll('.ck-tipo').forEach(el => el.addEventListener('change', e => {
+    e.target.checked ? state.tipos.add(e.target.value) : state.tipos.delete(e.target.value);
+    state.page = 1; renderAll();
+  }));
+}
+
+function renderPctGrid(containerId, stateKey){
+  const grid = document.getElementById(containerId);
+  const pcts = [40,45,50,55,60,65,70,75,80,85,90,95,100];
+  grid.innerHTML = pcts.map(p => `<button type="button" class="pct-btn" data-pct="${p}">${p}%</button>`).join('');
+  grid.querySelectorAll('.pct-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const val = parseInt(btn.dataset.pct, 10);
+      state[stateKey] = state[stateKey] === val ? 0 : val;
+      grid.querySelectorAll('.pct-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.pct,10) === state[stateKey]));
+      state.page = 1; renderAll();
+    });
+  });
+}
+renderPctGrid('pctHospGrid', 'hospMin');
+renderPctGrid('pctAmbGrid', 'ambMin');
+
+document.querySelectorAll('.limpiar-filtro').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (btn.dataset.clear === 'hosp'){ state.hospMin = 0; document.querySelectorAll('#pctHospGrid .pct-btn').forEach(b=>b.classList.remove('active')); document.getElementById('todosPrestadoresHosp').checked=false; }
+    if (btn.dataset.clear === 'amb'){ state.ambMin = 0; document.querySelectorAll('#pctAmbGrid .pct-btn').forEach(b=>b.classList.remove('active')); document.getElementById('todosPrestadoresAmb').checked=false; }
+    renderAll();
+  });
+});
+
+document.getElementById('searchInput').addEventListener('input', e => { state.search = e.target.value.toLowerCase(); state.page=1; renderAll(); });
+document.getElementById('sortSelect').addEventListener('change', e => { state.sort = e.target.value; renderAll(); });
+document.getElementById('pageSizeSelect').addEventListener('change', e => { state.pageSize = parseInt(e.target.value,10); state.page=1; renderAll(); });
+
+// Dual range slider
+const rangeMin = document.getElementById('rangeMin');
+const rangeMax = document.getElementById('rangeMax');
+function updateRangeUI(){
+  let a = parseFloat(rangeMin.value), b = parseFloat(rangeMax.value);
+  if (a > b){ [a,b] = [b,a]; }
+  state.priceMin = a; state.priceMax = b;
+  document.getElementById('rangeMinLabel').textContent = a.toFixed(2).replace('.', ',') + ' UF';
+  document.getElementById('rangeMaxLabel').textContent = b.toFixed(2).replace('.', ',') + ' UF';
+  const min=1, max=12;
+  const left = ((a-min)/(max-min))*100, right = ((b-min)/(max-min))*100;
+  const fill = document.getElementById('trackFill');
+  fill.style.left = left + '%'; fill.style.width = (right-left) + '%';
+  state.page = 1; renderAll();
+}
+rangeMin.addEventListener('input', updateRangeUI);
+rangeMax.addEventListener('input', updateRangeUI);
+
+document.getElementById('prevPageBtn').addEventListener('click', () => { if (state.page>1){ state.page--; renderResults(); } });
+document.getElementById('nextPageBtn').addEventListener('click', () => { state.page++; renderResults(); });
+
+document.getElementById('viewListBtn').addEventListener('click', () => setView('list'));
+document.getElementById('viewGridBtn').addEventListener('click', () => setView('grid'));
+function setView(v){
+  state.view = v;
+  document.getElementById('viewListBtn').classList.toggle('active', v==='list');
+  document.getElementById('viewGridBtn').classList.toggle('active', v==='grid');
+  document.getElementById('resultsCol').style.display = v==='grid' ? 'grid' : 'flex';
+  document.getElementById('resultsCol').style.gridTemplateColumns = v==='grid' ? 'repeat(auto-fill, minmax(340px,1fr))' : '';
+}
+
+document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+  state.search=''; state.priceMin=1; state.priceMax=12;
+  state.isapres = new Set(ISAPRES.map(i=>i.name));
+  state.zonas = new Set(); state.tipos = new Set();
+  state.hospMin = 0; state.ambMin = 0; state.page = 1;
+  document.getElementById('searchInput').value = '';
+  rangeMin.value = 1; rangeMax.value = 12; updateRangeUI();
+  document.getElementById('todosPrestadoresHosp').checked=false;
+  document.getElementById('todosPrestadoresAmb').checked=false;
+  document.querySelectorAll('.pct-btn').forEach(b=>b.classList.remove('active'));
+  renderAll();
+});
+
+function escapeHtml(str){ return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function computePrecio(plan){
+  const factor = beneficiarios.reduce((sum,b)=>sum+getFactor(b.edad,b.sexo),0) || 1;
+  return plan.baseUF * (factor / 1.0) * 0.55; // ajuste para que quede en rango de ejemplo razonable
+}
+
+function getFilteredPlans(){
+  return ALL_PLANS.filter(p => {
+    const precio = computePrecio(p);
+    if (state.search && !(`${p.isapre} ${p.planCode} ${p.tipoPlan}`.toLowerCase().includes(state.search))) return false;
+    if (precio < state.priceMin || precio > state.priceMax) return false;
+    if (!state.isapres.has(p.isapre)) return false;
+    if (state.zonas.size && !state.zonas.has(p.zona)) return false;
+    if (state.tipos.size && !state.tipos.has(p.tipoPlan)) return false;
+    if (state.hospMin && p.hospPct < state.hospMin) return false;
+    if (state.ambMin && p.ambPct < state.ambMin) return false;
+    return true;
+  }).map(p => Object.assign({}, p, { precio: computePrecio(p) }));
+}
+
+function renderChips(){
+  const chips = [];
+  ISAPRES.forEach(is => { if (!state.isapres.has(is.name)) return; });
+  const activeIsapres = [...state.isapres];
+  if (activeIsapres.length && activeIsapres.length < ISAPRES.length){
+    activeIsapres.slice(0,3).forEach(n => chips.push({ label:n, onRemove:() => state.isapres.delete(n) }));
+    if (activeIsapres.length > 3) chips.push({ label:`+${activeIsapres.length-3} más`, onRemove:null });
+  }
+  state.zonas.forEach(z => chips.push({ label:z, onRemove:() => state.zonas.delete(z) }));
+  state.tipos.forEach(t => chips.push({ label:t, onRemove:() => state.tipos.delete(t) }));
+  if (state.hospMin) chips.push({ label:`Hosp ≥ ${state.hospMin}%`, onRemove:() => { state.hospMin=0; document.querySelectorAll('#pctHospGrid .pct-btn').forEach(b=>b.classList.remove('active')); } });
+  if (state.ambMin) chips.push({ label:`Amb ≥ ${state.ambMin}%`, onRemove:() => { state.ambMin=0; document.querySelectorAll('#pctAmbGrid .pct-btn').forEach(b=>b.classList.remove('active')); } });
+
+  const row = document.getElementById('chipsRow');
+  row.innerHTML = chips.map((c,i) => `<span class="chip">${escapeHtml(c.label)}${c.onRemove ? `<button data-chip="${i}">✕</button>` : ''}</span>`).join('');
+  row.querySelectorAll('button[data-chip]').forEach(btn => {
+    btn.addEventListener('click', () => {
+      chips[+btn.dataset.chip].onRemove();
+      state.page = 1; renderAll();
+    });
+  });
+}
+
+function coverageBarHtml(pct){
+  const colors = pct >= 80 ? '#0FA98E' : pct >= 60 ? '#2E7BEA' : pct >= 40 ? '#D97706' : '#E5484D';
+  return `<div class="coverage-bar"><span style="width:${pct}%; background:${colors};"></span></div>`;
+}
+
+function planCardHtml(p, rank){
+  const initials = p.isapre.split(' ').map(w=>w[0]).slice(0,2).join('').toUpperCase();
+  const tagClass = p.tipoPlan === 'Preferente' ? 'tipo-preferente' : p.tipoPlan === 'Cerrado' ? 'tipo-cerrado' : 'tipo-libre';
+  const clp = Math.round(p.precio * ufTodayValue).toLocaleString('es-CL');
+  return `
+  <div class="plan-card">
+    <span class="plan-rank">${rank}</span>
+    <div class="plan-main">
+      <div class="plan-main-top">
+        <span class="plan-isapre-icon" style="background:${p.color};">${initials}</span>
+        <span class="plan-isapre-name">${escapeHtml(p.isapre)}</span>
+        <span class="plan-code">${escapeHtml(p.planCode)}</span>
+      </div>
+      <div class="plan-tags">
+        <span class="plan-tag ${tagClass}">${escapeHtml(p.tipoPlan)}</span>
+        <span class="plan-tag">${p.deducible ? 'Con deducible' : 'Sin deducible'}</span>
+        <span class="plan-tag">${escapeHtml(p.zona)}</span>
+      </div>
+    </div>
+    <div class="plan-price">
+      <small>Desde</small>
+      <span class="uf">UF ${p.precio.toFixed(3)}</span>
+      <span class="clp">$${clp}</span>
+    </div>
+    <div class="plan-actions">
+      <button type="button" title="Cotizar por WhatsApp" class="plan-wa-btn" data-isapre="${escapeHtml(p.isapre)}" data-plan="${escapeHtml(p.planCode)}" data-precio="UF ${p.precio.toFixed(3)} ($${clp})">
+        <svg class="icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Z"/></svg>
+      </button>
+      <button type="button" title="Guardar"><svg class="icon" viewBox="0 0 24 24"><path d="m12 17.3-6.2 3.7 1.6-7-5.4-4.7 7.1-.6L12 2l2.9 6.7 7.1.6-5.4 4.7 1.6 7Z"/></svg></button>
+      <button type="button" title="Descargar ficha"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg></button>
+    </div>
+    <div class="plan-coverage-row">
+      <div class="coverage-block">
+        <h5>Cobertura hospitalaria — ${p.hospPct}%</h5>
+        ${coverageBarHtml(p.hospPct)}
+        <div class="coverage-list">${p.hospPrestadores.map(pr => `<div><span><b>${pr.pct}%</b>${escapeHtml(pr.name)}</span></div>`).join('')}</div>
+      </div>
+      <div class="coverage-block">
+        <h5>Cobertura ambulatoria — ${p.ambPct}%</h5>
+        ${coverageBarHtml(p.ambPct)}
+        <div class="coverage-list">${p.ambPrestadores.map(pr => `<div><span><b>${pr.pct}%</b>${escapeHtml(pr.name)}</span></div>`).join('')}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function renderResults(){
+  let results = getFilteredPlans();
+  if (state.sort === 'precio_asc') results.sort((a,b)=>a.precio-b.precio);
+  else if (state.sort === 'precio_desc') results.sort((a,b)=>b.precio-a.precio);
+  else if (state.sort === 'cobertura_desc') results.sort((a,b)=>(b.hospPct+b.ambPct)-(a.hospPct+a.ambPct));
+
+  const totalPages = Math.max(1, Math.ceil(results.length / state.pageSize));
+  if (state.page > totalPages) state.page = totalPages;
+  document.getElementById('pageLabel').textContent = `${state.page} / ${totalPages}`;
+  document.getElementById('prevPageBtn').disabled = state.page <= 1;
+  document.getElementById('nextPageBtn').disabled = state.page >= totalPages;
+
+  const startIdx = (state.page-1) * state.pageSize;
+  const pageItems = results.slice(startIdx, startIdx + state.pageSize);
+
+  document.getElementById('summaryCount').textContent = `${results.length} de ${ALL_PLANS.length} planes`;
+
+  const col = document.getElementById('resultsCol');
+  if (!pageItems.length){
+    col.innerHTML = `<div class="empty-state">No hay planes de ejemplo que calcen con estos filtros.<br>Prueba ampliando el rango de precio o marcando más isapres.</div>`;
+    return;
+  }
+  col.innerHTML = pageItems.map((p,i) => planCardHtml(p, startIdx+i+1)).join('');
+  col.querySelectorAll('.plan-wa-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const msg = `Hola! Quiero cotizar el plan ${btn.dataset.plan} de ${btn.dataset.isapre} (${btn.dataset.precio}).`;
+      window.open('https://api.whatsapp.com/send?phone=56958194141&text=' + encodeURIComponent(msg), '_blank', 'noopener');
+    });
+  });
+}
+
+function renderAll(){
+  renderIsapresFilter();
+  renderZonasFilter();
+  renderTipoPlanFilter();
+  renderChips();
+  renderResults();
+}
+
+// UF del día (referencial, con fallback)
+let ufTodayValue = 39000;
+fetch('https://mindicador.cl/api/uf')
+  .then(r => r.ok ? r.json() : Promise.reject())
+  .then(data => {
+    if (data && data.serie && data.serie[0]){
+      ufTodayValue = data.serie[0].valor;
+      document.getElementById('ufTopbar').textContent = '$' + Math.round(ufTodayValue).toLocaleString('es-CL');
+      renderResults();
+    }
+  })
+  .catch(() => { document.getElementById('ufTopbar').textContent = '$' + ufTodayValue.toLocaleString('es-CL') + ' (ref.)'; });
+
+renderBeneficiarios();
+updateRangeUI();
+renderAll();
+</script>
+</body>
+</html>
