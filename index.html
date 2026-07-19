@@ -1035,17 +1035,28 @@
   const clpResult = document.getElementById('clpResult');
   const ufValueEl = document.getElementById('ufValue');
 
-  let ufToday = 39000; // fallback value in CLP
-  fetch('https://mindicador.cl/api/uf')
-    .then(r => r.ok ? r.json() : Promise.reject())
-    .then(data => {
-      if (data && data.serie && data.serie[0]) {
-        ufToday = data.serie[0].valor;
-        ufValueEl.textContent = '$' + Math.round(ufToday).toLocaleString('es-CL');
-        updateSimulator();
-      }
-    })
-    .catch(() => { ufValueEl.textContent = '$' + ufToday.toLocaleString('es-CL') + ' (referencial)'; });
+  let ufToday = 40844; // fallback referencial si la API no responde
+  function fetchUFConReintento(intentos){
+    fetch('https://mindicador.cl/api/uf', { cache: 'no-store' })
+      .then(r => r.ok ? r.json() : Promise.reject())
+      .then(data => {
+        if (data && data.serie && data.serie[0] && data.serie[0].valor) {
+          ufToday = data.serie[0].valor;
+          ufValueEl.textContent = '$' + Math.round(ufToday).toLocaleString('es-CL');
+          updateSimulator();
+        } else {
+          throw new Error('respuesta sin datos');
+        }
+      })
+      .catch(() => {
+        if (intentos > 0){
+          setTimeout(() => fetchUFConReintento(intentos - 1), 1500);
+        } else {
+          ufValueEl.textContent = '$' + ufToday.toLocaleString('es-CL') + ' (referencial)';
+        }
+      });
+  }
+  fetchUFConReintento(2);
 
   function formatCLP(n){ return '$' + Math.round(n).toLocaleString('es-CL'); }
 
