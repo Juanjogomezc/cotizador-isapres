@@ -4,20 +4,23 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Cotizador | Compara todas las Isapres</title>
+<link rel="icon" type="image/png" href="logo-icon.png">
 <meta name="description" content="Cotizador avanzado: compara planes de isapre por beneficiarios, red de prestadores y cobertura hospitalaria/ambulatoria.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
 <style>
   :root{
-    --bg:#FFFFFF; --bg-alt:#F6F7F9; --surface:#FFFFFF;
-    --ink-900:#0E1216; --ink-600:#57616E; --line:#E3E6EB;
-    --navy-900:#050708; --navy-800:#12151A;
-    --blue-600:#1D63C7; --blue-500:#2E7BEA; --accent:#2E7BEA; --accent-600:#1A5CC9;
+    --bg:#F5F7FB; --bg-alt:#F5F7FB; --surface:#FFFFFF;
+    --ink-900:#0E1216; --ink-600:#5B6472; --line:#E7EAF0;
+    --navy-900:#0A1730; --navy-800:#12224A;
+    --filter-blue:#2464EA; --filter-blue-dark:#1E52C7;
+    --blue-600:#1D63C7; --blue-500:#2464EA; --accent:#2464EA; --accent-600:#1E52C7;
     --teal-500:#0FA98E; --teal-100:#E3F7F2;
-    --red-500:#E5484D; --red-100:#FDECEC;
-    --amber-500:#D97706; --amber-100:#FEF3E2;
-    --shadow-color:rgba(10,14,20,.12);
+    --red-500:#F0435A; --red-100:#FDECEC;
+    --amber-500:#F5A623; --amber-100:#FEF3E2;
+    --green-500:#22C55E; --purple-500:#8B5CF6; --gray-500:#94A3B8;
+    --shadow-color:rgba(10,20,40,.10);
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   body{font-family:'Inter', sans-serif; color:var(--ink-900); background:var(--bg-alt); line-height:1.4;}
@@ -34,8 +37,8 @@
   }
   .topbar-left{display:flex; align-items:center; gap:14px;}
   .tb-logo{display:flex; align-items:center; gap:8px; font-weight:700; font-size:1.05rem;}
-  .tb-logo .mark{width:30px; height:30px; border-radius:9px; background:linear-gradient(135deg,var(--navy-800),var(--blue-500)); display:flex; align-items:center; justify-content:center;}
-  .tb-logo .mark svg{width:16px; height:16px; stroke:white; stroke-width:2.4;}
+  .tb-logo .mark{width:30px; height:30px; display:flex; align-items:center; justify-content:center;}
+  .tb-logo .mark img{width:100%; height:100%; object-fit:contain;}
   .tb-tab{
     display:flex; align-items:center; gap:6px; background:var(--bg-alt); border:1px solid var(--line);
     border-radius:100px; padding:7px 14px; font-size:.82rem; font-weight:700; color:var(--ink-900);
@@ -106,15 +109,16 @@
   /* ---- LAYOUT ---- */
   .app-layout{display:grid; grid-template-columns:280px 1fr; gap:20px; padding:20px 24px; align-items:start;}
   .filters-col{display:flex; flex-direction:column; gap:14px; position:sticky; top:130px;}
-  .filter-card{background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px;}
-  .filter-card summary{
-    display:flex; align-items:center; justify-content:space-between; cursor:pointer; list-style:none;
-    font-size:.78rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-900);
+  .filter-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:0 1px 3px var(--shadow-color);}
+  .filter-header{
+    display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none;
+    background:linear-gradient(135deg, var(--filter-blue), var(--filter-blue-dark));
+    color:white; padding:12px 16px; font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
   }
-  .filter-card summary::-webkit-details-marker{display:none;}
-  .filter-card summary::after{content:"▾"; color:var(--ink-600); font-size:.7rem;}
-  .filter-card[open] summary::after{content:"▴";}
-  .filter-card .body{margin-top:14px; display:flex; flex-direction:column; gap:10px;}
+  .filter-header .chev{transition:transform .2s ease; font-size:.7rem;}
+  .filter-card.closed .filter-header .chev{transform:rotate(-90deg);}
+  .filter-card .body{padding:16px; display:flex; flex-direction:column; gap:10px;}
+  .filter-card.closed .body{display:none;}
 
   .beneficiario-row{
     display:grid; grid-template-columns:1fr 64px 50px 26px; gap:6px; align-items:center;
@@ -135,60 +139,72 @@
   }
   .total-factorial b{font-family:'IBM Plex Mono', monospace; color:var(--teal-500);}
 
-  .check-row{display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:.82rem; font-weight:600;}
-  .check-row label{display:flex; align-items:center; gap:8px;}
-  .check-row input{width:16px; height:16px; accent-color:var(--accent);}
-  .check-row .count{font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--ink-600); font-weight:600;}
-  .filter-total{font-size:.75rem; color:var(--ink-600); text-align:right; font-family:'IBM Plex Mono', monospace;}
+  .check-row{display:flex; align-items:center; justify-content:space-between; gap:8px; font-size:.82rem; font-weight:600; color:var(--ink-900);}
+  .check-row label{display:flex; align-items:center; gap:9px;}
+  .check-row input{width:17px; height:17px; accent-color:var(--filter-blue);}
+  .check-row .count{
+    font-family:'IBM Plex Mono', monospace; font-size:.68rem; color:var(--ink-600); font-weight:700;
+    background:var(--bg-alt); padding:2px 8px; border-radius:100px; border:1px solid var(--line);
+  }
+  .filter-total{font-size:.72rem; color:white; text-align:center; font-family:'IBM Plex Mono', monospace; background:var(--navy-900); border-radius:8px; padding:6px; margin-top:2px;}
 
   .pct-grid{display:grid; grid-template-columns:repeat(4,1fr); gap:6px;}
   .pct-btn{
     border:1px solid var(--line); background:var(--bg-alt); border-radius:8px; padding:6px 0; font-size:.74rem; font-weight:700; color:var(--ink-600);
   }
-  .pct-btn.active{background:var(--accent); color:white; border-color:var(--accent);}
+  .pct-btn.active{background:var(--filter-blue); color:white; border-color:var(--filter-blue);}
   .toggle-row{display:flex; align-items:center; gap:8px; font-size:.8rem; font-weight:600;}
+  .toggle-row input{width:16px; height:16px; accent-color:var(--filter-blue);}
   .limpiar-filtro{
-    width:100%; background:var(--accent); color:white; border:none; border-radius:10px; padding:8px; font-size:.78rem; font-weight:700; margin-top:4px;
+    width:100%; background:var(--filter-blue); color:white; border:none; border-radius:10px; padding:9px; font-size:.78rem; font-weight:700; margin-top:4px;
   }
 
   /* ---- RESULTS ---- */
   .results-col{display:flex; flex-direction:column; gap:14px;}
   .plan-card{
     background:var(--surface); border:1px solid var(--line); border-radius:16px; padding:18px 20px;
-    display:grid; grid-template-columns:auto 1fr auto auto; gap:16px; align-items:center;
+    display:grid; grid-template-columns:auto auto 1fr auto auto; gap:14px; align-items:center;
+    box-shadow:0 1px 3px var(--shadow-color);
   }
+  .plan-select{width:18px; height:18px; accent-color:var(--filter-blue);}
   .plan-rank{
-    width:30px; height:30px; border-radius:50%; background:var(--bg-alt); color:var(--ink-600);
-    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:.8rem;
+    width:28px; height:28px; border-radius:50%; background:var(--bg-alt); color:var(--ink-600);
+    display:flex; align-items:center; justify-content:center; font-family:'IBM Plex Mono', monospace; font-weight:700; font-size:.76rem;
   }
   .plan-main{display:flex; flex-direction:column; gap:4px;}
   .plan-main-top{display:flex; align-items:center; gap:10px; flex-wrap:wrap;}
   .plan-isapre-icon{
-    width:26px; height:26px; border-radius:8px; display:flex; align-items:center; justify-content:center;
-    color:white; font-size:.7rem; font-weight:700; font-family:'Space Grotesk', sans-serif;
+    width:28px; height:28px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    color:white; font-size:.72rem; font-weight:700; font-family:'Space Grotesk', sans-serif; flex-shrink:0;
   }
   .plan-isapre-name{font-weight:700; font-size:.9rem;}
   .plan-code{font-family:'IBM Plex Mono', monospace; font-size:.72rem; color:var(--ink-600);}
   .plan-tags{display:flex; gap:6px; flex-wrap:wrap;}
-  .plan-tag{font-size:.68rem; font-weight:700; padding:3px 9px; border-radius:100px; background:var(--bg-alt); color:var(--ink-600);}
-  .plan-tag.tipo-preferente{background:var(--teal-100); color:var(--teal-500);}
-  .plan-tag.tipo-cerrado{background:var(--amber-100); color:var(--amber-500);}
-  .plan-tag.tipo-libre{background:var(--blue-500); color:white;}
-  .plan-price{text-align:center; min-width:100px;}
-  .plan-price .uf{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.2rem;}
-  .plan-price .clp{font-family:'IBM Plex Mono', monospace; font-size:.76rem; color:var(--accent);}
-  .plan-price small{display:block; font-size:.65rem; color:var(--ink-600); text-transform:uppercase; letter-spacing:.04em;}
+  .plan-tag{font-size:.66rem; font-weight:700; padding:3px 10px; border-radius:100px; background:var(--bg-alt); color:var(--ink-600);}
+  .plan-tag.tipo-preferente{background:var(--amber-100); color:var(--amber-500);}
+  .plan-tag.tipo-cerrado{background:var(--red-100); color:var(--red-500);}
+  .plan-tag.tipo-libre{background:var(--teal-100); color:var(--teal-500);}
+  .plan-price{text-align:center; min-width:110px;}
+  .plan-price small{display:block; font-size:.62rem; color:var(--ink-600); text-transform:uppercase; letter-spacing:.05em; margin-bottom:2px;}
+  .plan-price .uf{font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:1.25rem; color:var(--ink-900);}
+  .plan-price .clp{display:block; font-family:'IBM Plex Mono', monospace; font-size:.78rem; color:var(--ink-600); margin-top:2px;}
   .plan-actions{display:flex; gap:6px;}
   .plan-actions button{
-    width:34px; height:34px; border-radius:9px; border:1px solid var(--line); background:var(--bg-alt); color:var(--ink-600);
-    display:flex; align-items:center; justify-content:center;
+    width:32px; height:32px; border-radius:50%; border:none; color:white;
+    display:flex; align-items:center; justify-content:center; opacity:.92;
   }
-  .plan-actions button:hover{background:var(--accent); color:white; border-color:var(--accent);}
+  .plan-actions button:hover{opacity:1; transform:translateY(-1px);}
+  .plan-actions button.act-wa{background:var(--filter-blue);}
+  .plan-actions button.act-save{background:var(--green-500);}
+  .plan-actions button.act-fav{background:var(--red-500);}
+  .plan-actions button.act-share{background:var(--purple-500);}
+  .plan-actions button.act-more{background:var(--gray-500);}
+  .plan-actions .icon{width:15px; height:15px; stroke-width:2.3;}
 
   .plan-coverage-row{grid-column:1 / -1; display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-top:14px; border-top:1px solid var(--line); padding-top:14px;}
   .coverage-block h5{display:flex; align-items:center; gap:6px; font-size:.72rem; text-transform:uppercase; letter-spacing:.05em; color:var(--ink-600); margin-bottom:8px;}
-  .coverage-bar{display:flex; height:8px; border-radius:6px; overflow:hidden; margin-bottom:10px; background:var(--bg-alt);}
-  .coverage-bar span{height:100%;}
+  .coverage-bar{display:flex; gap:2px; height:8px; border-radius:6px; overflow:hidden; margin-bottom:10px;}
+  .coverage-bar span{height:100%; flex:1;}
   .coverage-list{display:flex; flex-direction:column; gap:6px;}
   .coverage-list div{display:flex; justify-content:space-between; font-size:.78rem; color:var(--ink-600);}
   .coverage-list b{color:var(--accent); font-family:'IBM Plex Mono', monospace; font-weight:700; margin-right:8px;}
@@ -202,11 +218,61 @@
     padding:10px 16px; border-radius:10px; margin:0 24px 4px; text-align:center;
   }
 
+  /* ---- FOOTER ---- */
+  .cz-footer{background:var(--navy-900); color:#B9C6E0; margin-top:24px; padding:40px 24px 0;}
+  .cz-footer-top{display:grid; grid-template-columns:1.4fr 1fr 1fr 1fr; gap:28px; max-width:1200px; margin:0 auto; padding-bottom:32px;}
+  .cz-footer-brand p{margin-top:12px; font-size:.82rem; color:#8FA0C4; max-width:32ch;}
+  .cz-footer-col h5{color:white; font-size:.76rem; text-transform:uppercase; letter-spacing:.06em; margin-bottom:12px; font-family:'IBM Plex Mono', monospace;}
+  .cz-footer-col ul{list-style:none; display:flex; flex-direction:column; gap:8px;}
+  .cz-footer-col li{font-size:.84rem;}
+  .cz-footer-col a:hover{color:white;}
+  .cz-footer-bottom{
+    max-width:1200px; margin:0 auto; border-top:1px solid rgba(255,255,255,.12); padding:18px 0;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:.76rem; color:#7C8FB5;
+  }
+  .cz-social{display:flex; gap:10px;}
+  .cz-social a{width:32px; height:32px; border-radius:50%; background:rgba(255,255,255,.08); display:flex; align-items:center; justify-content:center;}
+  .cz-social .icon{width:15px; height:15px; color:white;}
+  @media (max-width:860px){.cz-footer-top{grid-template-columns:1fr 1fr;}}
+
   @media (max-width:960px){
-    .app-layout{grid-template-columns:1fr;}
+    .app-layout{grid-template-columns:1fr; padding:14px 16px;}
     .filters-col{position:static;}
-    .plan-card{grid-template-columns:1fr; text-align:left;}
-    .plan-coverage-row{grid-template-columns:1fr;}
+    .plan-card{grid-template-columns:auto auto 1fr; grid-template-areas:"sel rank main" "price price price" "actions actions actions" "cov cov cov"; text-align:left;}
+    .plan-select{grid-area:sel;}
+    .plan-rank{grid-area:rank;}
+    .plan-main{grid-area:main;}
+    .plan-price{grid-area:price; text-align:left; display:flex; align-items:baseline; gap:8px; margin-top:8px;}
+    .plan-price small{margin-bottom:0;}
+    .plan-actions{grid-area:actions; margin-top:10px;}
+    .plan-coverage-row{grid-template-columns:1fr; grid-area:cov;}
+  }
+
+  @media (max-width:760px){
+    .topbar{padding:10px 14px; gap:10px;}
+    .topbar-left{gap:8px;}
+    .tb-tab span{display:none;}
+    .back-link span{display:none;}
+    .user-chip .user-name{display:none;}
+    .uf-badge{font-size:.72rem; padding:6px 10px;}
+
+    .toolbar{padding:12px 14px; flex-direction:column; align-items:stretch;}
+    .search-box{min-width:0; width:100%;}
+    .range-box{min-width:0; width:100%;}
+    .toolbar > .sort-select, .toolbar > .pagesize-select{flex:1 1 45%;}
+    .toolbar-row2{display:flex; gap:10px; flex-wrap:wrap; width:100%;}
+    .pager{justify-content:center; width:100%;}
+    .view-toggle{align-self:center;}
+
+    .summary-bar{padding:10px 14px; flex-direction:column; align-items:stretch;}
+    .clear-btn{width:100%;}
+
+    .example-banner{margin:0 14px 4px;}
+
+    .app-layout{padding:12px;}
+    .plan-card{padding:14px;}
+    .plan-actions{flex-wrap:wrap;}
+    .cz-footer-top{grid-template-columns:1fr; text-align:left;}
   }
 </style>
 </head>
@@ -214,13 +280,13 @@
 
 <div class="topbar">
   <div class="topbar-left">
-    <a href="index.html" class="tb-logo"><span class="mark"><svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/></svg></span>Todas las Isapres</a>
-    <span class="tb-tab"><svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg> Cotizador</span>
+    <a href="index.html" class="tb-logo"><span class="mark"><img src="logo-icon.png" alt="Todas las Isapres"></span>Todas las Isapres</a>
+    <span class="tb-tab"><svg class="icon" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4Z"/></svg> <span>Cotizador</span></span>
   </div>
   <div class="topbar-right">
-    <a href="index.html" class="back-link"><svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg>Volver al sitio</a>
+    <a href="index.html" class="back-link"><svg class="icon" viewBox="0 0 24 24"><path d="m15 18-6-6 6-6"/></svg><span>Volver al sitio</span></a>
     <span class="uf-badge"><svg class="icon" viewBox="0 0 24 24" style="width:14px;height:14px;"><path d="M12 1v22M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg> UF hoy: <span id="ufTopbar">$39.000</span></span>
-    <span class="user-chip"><span class="user-avatar">IN</span> Invitado</span>
+    <span class="user-chip"><span class="user-avatar">IN</span> <span class="user-name">Invitado</span></span>
   </div>
 </div>
 
@@ -270,8 +336,8 @@
 <div class="app-layout">
   <aside class="filters-col">
 
-    <details class="filter-card" open>
-      <summary>Beneficiarios</summary>
+    <div class="filter-card">
+      <div class="filter-header">Beneficiarios <span class="chev">▾</span></div>
       <div class="body">
         <div id="beneficiariosList"></div>
         <div class="add-beneficiario-row">
@@ -280,45 +346,85 @@
         </div>
         <div class="total-factorial">Total factorial <b id="totalFactorial">1.00</b></div>
       </div>
-    </details>
+    </div>
 
-    <details class="filter-card" open>
-      <summary>Isapres</summary>
+    <div class="filter-card">
+      <div class="filter-header">Isapres <span class="chev">▾</span></div>
       <div class="body" id="isapresFilterBody"></div>
-    </details>
+    </div>
 
-    <details class="filter-card">
-      <summary>Zonas</summary>
+    <div class="filter-card closed">
+      <div class="filter-header">Zonas <span class="chev">▾</span></div>
       <div class="body" id="zonasFilterBody"></div>
-    </details>
+    </div>
 
-    <details class="filter-card">
-      <summary>Tipo de plan</summary>
+    <div class="filter-card closed">
+      <div class="filter-header">Tipo de plan <span class="chev">▾</span></div>
       <div class="body" id="tipoPlanFilterBody"></div>
-    </details>
+    </div>
 
-    <details class="filter-card">
-      <summary>Cobertura hospitalaria</summary>
+    <div class="filter-card closed">
+      <div class="filter-header">Cobertura hospitalaria <span class="chev">▾</span></div>
       <div class="body">
         <div class="pct-grid" id="pctHospGrid"></div>
         <label class="toggle-row"><input type="checkbox" id="todosPrestadoresHosp"> Todos los prestadores</label>
         <button type="button" class="limpiar-filtro" data-clear="hosp">Limpiar filtro</button>
       </div>
-    </details>
+    </div>
 
-    <details class="filter-card">
-      <summary>Cobertura ambulatoria</summary>
+    <div class="filter-card closed">
+      <div class="filter-header">Cobertura ambulatoria <span class="chev">▾</span></div>
       <div class="body">
         <div class="pct-grid" id="pctAmbGrid"></div>
         <label class="toggle-row"><input type="checkbox" id="todosPrestadoresAmb"> Todos los prestadores</label>
         <button type="button" class="limpiar-filtro" data-clear="amb">Limpiar filtro</button>
       </div>
-    </details>
+    </div>
 
   </aside>
 
   <main class="results-col" id="resultsCol"></main>
 </div>
+
+<footer class="cz-footer">
+  <div class="cz-footer-top">
+    <div class="cz-footer-brand">
+      <span class="tb-logo" style="color:white;"><span class="mark"><img src="logo-icon.png" alt="Todas las Isapres"></span>Todas las Isapres</span>
+      <p>Comparamos todas las isapres de Chile para que cotices con datos reales, sin vueltas.</p>
+    </div>
+    <div class="cz-footer-col">
+      <h5>Contáctanos</h5>
+      <ul>
+        <li>WhatsApp: +56 9 5819 4141</li>
+        <li>Av. Ricardo Lyon 3500</li>
+        <li>Santiago, Chile</li>
+      </ul>
+    </div>
+    <div class="cz-footer-col">
+      <h5>Empresa</h5>
+      <ul>
+        <li><a href="index.html#nosotros">Nosotros</a></li>
+        <li><a href="index.html#blog">Blog</a></li>
+        <li><a href="index.html#empresas">Planes para empresas</a></li>
+      </ul>
+    </div>
+    <div class="cz-footer-col">
+      <h5>Ayuda</h5>
+      <ul>
+        <li><a href="index.html#cotizar">Hablar con un asesor</a></li>
+        <li><a href="https://www.superdesalud.gob.cl/" target="_blank" rel="noopener">Superintendencia de Salud</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="cz-footer-bottom">
+    <span>© 2026 Todas las Isapres. Planes de ejemplo mostrados con fines demostrativos.</span>
+    <div class="cz-social">
+      <a href="#" aria-label="Instagram"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1"/></svg></a>
+      <a href="#" aria-label="Facebook"><svg class="icon" viewBox="0 0 24 24"><path d="M14 9h3V6h-3a4 4 0 0 0-4 4v2H7v3h3v6h3v-6h3l1-3h-4v-2a1 1 0 0 1 1-1Z"/></svg></a>
+      <a href="#" aria-label="LinkedIn"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="M8 11v5M8 8v.01M12 16v-3a2 2 0 0 1 4 0v3M12 13v3"/></svg></a>
+    </div>
+  </div>
+</footer>
 
 <script>
 // =========================================================
@@ -465,7 +571,7 @@ document.getElementById('addCargaBtn').addEventListener('click', () => {
 // =========================================================
 const state = {
   search:'', priceMin:1, priceMax:12,
-  isapres: new Set(ISAPRES.map(i=>i.name)),
+  isapres: new Set(),
   zonas: new Set(),
   tipos: new Set(),
   hospMin: 0, ambMin: 0,
@@ -512,7 +618,7 @@ function renderTipoPlanFilter(){
   }));
 }
 
-function renderPctGrid(containerId, stateKey){
+function renderPctGrid(containerId, stateKey, todosCheckboxId){
   const grid = document.getElementById(containerId);
   const pcts = [40,45,50,55,60,65,70,75,80,85,90,95,100];
   grid.innerHTML = pcts.map(p => `<button type="button" class="pct-btn" data-pct="${p}">${p}%</button>`).join('');
@@ -521,12 +627,23 @@ function renderPctGrid(containerId, stateKey){
       const val = parseInt(btn.dataset.pct, 10);
       state[stateKey] = state[stateKey] === val ? 0 : val;
       grid.querySelectorAll('.pct-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.pct,10) === state[stateKey]));
+      document.getElementById(todosCheckboxId).checked = false;
       state.page = 1; renderAll();
     });
   });
+  document.getElementById(todosCheckboxId).addEventListener('change', e => {
+    if (e.target.checked){
+      state[stateKey] = 100;
+      grid.querySelectorAll('.pct-btn').forEach(b => b.classList.toggle('active', parseInt(b.dataset.pct,10) === 100));
+    } else {
+      state[stateKey] = 0;
+      grid.querySelectorAll('.pct-btn').forEach(b => b.classList.remove('active'));
+    }
+    state.page = 1; renderAll();
+  });
 }
-renderPctGrid('pctHospGrid', 'hospMin');
-renderPctGrid('pctAmbGrid', 'ambMin');
+renderPctGrid('pctHospGrid', 'hospMin', 'todosPrestadoresHosp');
+renderPctGrid('pctAmbGrid', 'ambMin', 'todosPrestadoresAmb');
 
 document.querySelectorAll('.limpiar-filtro').forEach(btn => {
   btn.addEventListener('click', () => {
@@ -573,7 +690,7 @@ function setView(v){
 
 document.getElementById('clearFiltersBtn').addEventListener('click', () => {
   state.search=''; state.priceMin=1; state.priceMax=12;
-  state.isapres = new Set(ISAPRES.map(i=>i.name));
+  state.isapres = new Set();
   state.zonas = new Set(); state.tipos = new Set();
   state.hospMin = 0; state.ambMin = 0; state.page = 1;
   document.getElementById('searchInput').value = '';
@@ -596,7 +713,7 @@ function getFilteredPlans(){
     const precio = computePrecio(p);
     if (state.search && !(`${p.isapre} ${p.planCode} ${p.tipoPlan}`.toLowerCase().includes(state.search))) return false;
     if (precio < state.priceMin || precio > state.priceMax) return false;
-    if (!state.isapres.has(p.isapre)) return false;
+    if (state.isapres.size && !state.isapres.has(p.isapre)) return false;
     if (state.zonas.size && !state.zonas.has(p.zona)) return false;
     if (state.tipos.size && !state.tipos.has(p.tipoPlan)) return false;
     if (state.hospMin && p.hospPct < state.hospMin) return false;
@@ -629,8 +746,23 @@ function renderChips(){
 }
 
 function coverageBarHtml(pct){
-  const colors = pct >= 80 ? '#0FA98E' : pct >= 60 ? '#2E7BEA' : pct >= 40 ? '#D97706' : '#E5484D';
-  return `<div class="coverage-bar"><span style="width:${pct}%; background:${colors};"></span></div>`;
+  // Barra segmentada tipo "heatmap": 10 bloques, coloreados según el tramo de cobertura alcanzado
+  const segments = 10;
+  const filled = Math.round((pct/100) * segments);
+  let html = '<div class="coverage-bar">';
+  for (let i=0;i<segments;i++){
+    let color = '#E7EAF0'; // segmento vacío
+    if (i < filled){
+      const t = i / (segments-1);
+      if (t < 0.33) color = '#F0435A';
+      else if (t < 0.55) color = '#F5A623';
+      else if (t < 0.75) color = '#F5D323';
+      else color = '#22C55E';
+    }
+    html += `<span style="background:${color};"></span>`;
+  }
+  html += '</div>';
+  return html;
 }
 
 function planCardHtml(p, rank){
@@ -639,6 +771,7 @@ function planCardHtml(p, rank){
   const clp = Math.round(p.precio * ufTodayValue).toLocaleString('es-CL');
   return `
   <div class="plan-card">
+    <input type="checkbox" class="plan-select" aria-label="Seleccionar plan">
     <span class="plan-rank">${rank}</span>
     <div class="plan-main">
       <div class="plan-main-top">
@@ -658,11 +791,13 @@ function planCardHtml(p, rank){
       <span class="clp">$${clp}</span>
     </div>
     <div class="plan-actions">
-      <button type="button" title="Cotizar por WhatsApp" class="plan-wa-btn" data-isapre="${escapeHtml(p.isapre)}" data-plan="${escapeHtml(p.planCode)}" data-precio="UF ${p.precio.toFixed(3)} ($${clp})">
+      <button type="button" title="Cotizar por WhatsApp" class="plan-wa-btn act-wa" data-isapre="${escapeHtml(p.isapre)}" data-plan="${escapeHtml(p.planCode)}" data-precio="UF ${p.precio.toFixed(3)} ($${clp})">
         <svg class="icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5.1-1.3A10 10 0 1 0 12 2Z"/></svg>
       </button>
-      <button type="button" title="Guardar"><svg class="icon" viewBox="0 0 24 24"><path d="m12 17.3-6.2 3.7 1.6-7-5.4-4.7 7.1-.6L12 2l2.9 6.7 7.1.6-5.4 4.7 1.6 7Z"/></svg></button>
-      <button type="button" title="Descargar ficha"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg></button>
+      <button type="button" title="Guardar cotización" class="act-save"><svg class="icon" viewBox="0 0 24 24"><path d="M6 3h9l5 5v13H6z"/><path d="M9 3v6h7V3M9 21v-7h7v7"/></svg></button>
+      <button type="button" title="Marcar favorito" class="act-fav"><svg class="icon" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="m12 17.3-6.2 3.7 1.6-7-5.4-4.7 7.1-.6L12 2l2.9 6.7 7.1.6-5.4 4.7 1.6 7Z"/></svg></button>
+      <button type="button" title="Compartir" class="act-share"><svg class="icon" viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.6 13.5 6.8 4M15.4 6.5 8.6 10.5"/></svg></button>
+      <button type="button" title="Descargar ficha" class="act-more"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3v12m0 0 4-4m-4 4-4-4M4 21h16"/></svg></button>
     </div>
     <div class="plan-coverage-row">
       <div class="coverage-block">
@@ -675,6 +810,7 @@ function planCardHtml(p, rank){
         ${coverageBarHtml(p.ambPct)}
         <div class="coverage-list">${p.ambPrestadores.map(pr => `<div><span><b>${pr.pct}%</b>${escapeHtml(pr.name)}</span></div>`).join('')}</div>
       </div>
+
     </div>
   </div>`;
 }
@@ -730,6 +866,10 @@ fetch('https://mindicador.cl/api/uf')
     }
   })
   .catch(() => { document.getElementById('ufTopbar').textContent = '$' + ufTodayValue.toLocaleString('es-CL') + ' (ref.)'; });
+
+document.querySelectorAll('.filter-header').forEach(h => {
+  h.addEventListener('click', () => h.closest('.filter-card').classList.toggle('closed'));
+});
 
 renderBeneficiarios();
 updateRangeUI();
