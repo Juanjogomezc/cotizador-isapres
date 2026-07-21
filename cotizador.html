@@ -147,11 +147,23 @@
   .filter-header{
     display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none;
     background:linear-gradient(135deg, var(--filter-blue), var(--filter-blue-dark));
-    color:white; padding:12px 16px; font-size:.76rem; font-weight:700; text-transform:uppercase; letter-spacing:.05em;
+    color:white; padding:14px 16px; font-size:.92rem; font-weight:700;
   }
-  .filter-header .chev{transition:transform .2s ease; font-size:.7rem;}
+  .filter-header.plain{
+    background:none; color:var(--ink-900); border-bottom:1px solid var(--line); cursor:default;
+  }
+  .filter-header.plain .reset-icon{cursor:pointer;}
+  .filter-header .chev, .filter-header .reset-icon{
+    width:26px; height:26px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.18); transition:transform .2s ease; flex-shrink:0;
+  }
+  .filter-header.plain .chev, .filter-header.plain .reset-icon{background:var(--bg-alt);}
+  .filter-header .chev svg, .filter-header .reset-icon svg{
+    width:14px; height:14px; stroke:currentColor; stroke-width:2.3; fill:none; stroke-linecap:round; stroke-linejoin:round;
+  }
+  .filter-header.plain .chev svg, .filter-header.plain .reset-icon svg{stroke:var(--ink-600);}
   .filter-card.closed .filter-header .chev{transform:rotate(-90deg);}
-  .filter-card .body{padding:16px; display:flex; flex-direction:column; gap:10px;}
+  .filter-card .body{padding:18px 16px; display:flex; flex-direction:column; gap:10px;}
   .filter-card.closed .body{display:none;}
 
   .price-values{display:flex; justify-content:space-between; gap:10px; margin-bottom:14px;}
@@ -447,7 +459,7 @@
     </div>
 
     <div class="filter-card">
-      <div class="filter-header">Rango de precio <span class="chev">▾</span></div>
+      <div class="filter-header plain">Rango de precio <span class="reset-icon"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg></span></div>
       <div class="body">
         <div class="price-values">
           <span id="rangeMinLabel">$76.800</span>
@@ -469,7 +481,7 @@
     </div>
 
     <div class="filter-card">
-      <div class="filter-header">Beneficiarios <span class="chev">▾</span></div>
+      <div class="filter-header">Beneficiarios <span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div>
       <div class="body">
         <div id="beneficiariosList"></div>
         <div class="add-beneficiario-row">
@@ -481,22 +493,22 @@
     </div>
 
     <div class="filter-card">
-      <div class="filter-header">Isapres <span class="chev">▾</span></div>
+      <div class="filter-header">Isapres <span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div>
       <div class="body" id="isapresFilterBody"></div>
     </div>
 
-    <div class="filter-card closed">
-      <div class="filter-header">Zonas <span class="chev">▾</span></div>
+    <div class="filter-card">
+      <div class="filter-header">Zonas <span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div>
       <div class="body" id="zonasFilterBody"></div>
     </div>
 
-    <div class="filter-card closed">
-      <div class="filter-header">Tipo de plan <span class="chev">▾</span></div>
+    <div class="filter-card">
+      <div class="filter-header">Tipo de plan <span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div>
       <div class="body" id="tipoPlanFilterBody"></div>
     </div>
 
-    <div class="filter-card closed">
-      <div class="filter-header">Cobertura hospitalaria <span class="chev">▾</span></div>
+    <div class="filter-card">
+      <div class="filter-header">Cobertura hospitalaria <span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div>
       <div class="body">
         <div class="pct-grid" id="pctHospGrid"></div>
         <label class="toggle-row"><input type="checkbox" id="todosPrestadoresHosp"> Todos los prestadores</label>
@@ -504,8 +516,8 @@
       </div>
     </div>
 
-    <div class="filter-card closed">
-      <div class="filter-header">Cobertura ambulatoria <span class="chev">▾</span></div>
+    <div class="filter-card">
+      <div class="filter-header">Cobertura ambulatoria <span class="chev"><svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg></span></div>
       <div class="body">
         <div class="pct-grid" id="pctAmbGrid"></div>
         <label class="toggle-row"><input type="checkbox" id="todosPrestadoresAmb"> Todos los prestadores</label>
@@ -1102,8 +1114,12 @@ function fetchUFConReintento(intentos){
 }
 fetchUFConReintento(2);
 
-document.querySelectorAll('.filter-header').forEach(h => {
+document.querySelectorAll('.filter-header:not(.plain)').forEach(h => {
   h.addEventListener('click', () => h.closest('.filter-card').classList.toggle('closed'));
+});
+document.querySelector('.filter-header.plain .reset-icon').addEventListener('click', (e) => {
+  e.stopPropagation();
+  rangeMin.value = 1; rangeMax.value = 12; updateRangeUI();
 });
 
 const filtersColEl = document.querySelector('.filters-col');
