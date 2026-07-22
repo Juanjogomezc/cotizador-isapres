@@ -144,7 +144,7 @@
   /* ---- LAYOUT ---- */
   .app-layout{display:grid; grid-template-columns:280px 1fr; gap:20px; padding:20px 24px; align-items:start;}
   .filters-col{display:flex; flex-direction:column; gap:14px; position:sticky; top:130px;}
-  .filter-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:0 1px 3px var(--shadow-color);}
+  .filter-card{background:var(--surface); border:1px solid var(--line); border-radius:14px; overflow:hidden; box-shadow:0 1px 3px var(--shadow-color); flex-shrink:0;}
   .filter-header{
     display:flex; align-items:center; justify-content:space-between; cursor:pointer; user-select:none;
     background:linear-gradient(135deg, var(--filter-blue), var(--filter-blue-dark));
@@ -347,6 +347,7 @@
     .mobile-filters-header{
       display:flex; align-items:center; justify-content:space-between;
       padding-bottom:14px; margin-bottom:6px; border-bottom:1px solid var(--line);
+      flex-shrink:0;
     }
     .mobile-filters-header h3{font-size:1.3rem; color:var(--ink-900);}
     .mobile-filters-header button{
