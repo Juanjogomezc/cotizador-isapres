@@ -361,6 +361,14 @@
       padding:16px 9px; border-radius:0 12px 12px 0; font-weight:700; font-size:.76rem; letter-spacing:.1em;
       z-index:70; box-shadow:0 6px 18px rgba(0,0,0,.28); border:none; cursor:pointer;
     }
+    .filters-edge-tab{
+      display:none; align-items:center; justify-content:center;
+      position:fixed; right:6px; top:50%; transform:translateY(-50%);
+      width:32px; height:60px; background:var(--accent); color:white; border:none;
+      border-radius:14px; font-size:1.5rem; line-height:1;
+      z-index:95; box-shadow:0 6px 18px rgba(0,0,0,.28); cursor:pointer;
+    }
+    .filters-col.mobile-open ~ .filters-edge-tab{display:flex;}
     .plan-card{grid-template-columns:auto auto 1fr; grid-template-areas:"sel rank main" "price price price" "actions actions actions" "cov cov cov"; text-align:left;}
     .plan-select{grid-area:sel;}
     .plan-rank{grid-area:rank;}
@@ -539,6 +547,7 @@
   </aside>
 
   <button type="button" id="openFiltersBtn" class="filters-tab" aria-label="Abrir filtros"><span>FILTROS</span></button>
+  <button type="button" id="closeFiltersEdgeTab" class="filters-edge-tab" aria-label="Cerrar filtros">‹</button>
 
   <main class="results-col" id="resultsCol"></main>
 </div>
@@ -1146,6 +1155,7 @@ document.querySelector('.filter-header.plain .reset-icon').addEventListener('cli
 const filtersColEl = document.querySelector('.filters-col');
 document.getElementById('openFiltersBtn').addEventListener('click', () => filtersColEl.classList.add('mobile-open'));
 document.getElementById('closeFiltersBtn').addEventListener('click', () => filtersColEl.classList.remove('mobile-open'));
+document.getElementById('closeFiltersEdgeTab').addEventListener('click', () => filtersColEl.classList.remove('mobile-open'));
 
 renderBeneficiarios();
 renderPriceHistogram();
