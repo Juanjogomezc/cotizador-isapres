@@ -76,6 +76,7 @@
   .back-link:hover{color:var(--accent);}
 
   /* ---- TOOLBAR (búsqueda / rango / orden / paginación) ---- */
+  .sticky-controls{background:var(--bg);}
   .toolbar{
     background:var(--surface); border-bottom:1px solid var(--line);
     display:flex; align-items:center; gap:18px; padding:14px 24px; flex-wrap:wrap;
@@ -369,6 +370,13 @@
     .plan-coverage-row{grid-template-columns:1fr; grid-area:cov;}
   }
 
+  @media (max-width:960px){
+    .sticky-controls{
+      position:sticky; top:var(--topbar-h, 60px); z-index:35;
+      box-shadow:0 6px 14px -8px var(--shadow-color);
+    }
+  }
+
   @media (max-width:760px){
     .topbar{padding:10px 14px; gap:10px;}
     .topbar-left{gap:8px;}
@@ -417,6 +425,7 @@
   </div>
 </div>
 
+<div class="sticky-controls">
 <div class="toolbar">
   <div class="search-box">
     <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
@@ -447,6 +456,7 @@
   <span class="summary-count" id="summaryCount">0 de 0 planes</span>
   <div class="chips" id="chipsRow"></div>
   <button class="clear-btn" id="clearFiltersBtn">Limpiar filtros</button>
+</div>
 </div>
 
 <p class="example-banner">Estos planes y prestadores son <b>datos de ejemplo</b>. Aquí se conectará tu base real de planes y convenios.</p>
@@ -591,6 +601,16 @@ function setTheme(theme){
 lightBtn.addEventListener('click', () => setTheme('light'));
 darkBtn.addEventListener('click', () => setTheme('dark'));
 setTheme('light');
+
+// ---- Altura dinámica del topbar (para pegar toolbar/summary debajo en mobile) ----
+const topbarEl = document.querySelector('.topbar');
+function syncTopbarHeight(){
+  document.documentElement.style.setProperty('--topbar-h', topbarEl.offsetHeight + 'px');
+}
+syncTopbarHeight();
+window.addEventListener('resize', syncTopbarHeight);
+window.addEventListener('orientationchange', syncTopbarHeight);
+if (document.fonts && document.fonts.ready){ document.fonts.ready.then(syncTopbarHeight); }
 
 // =========================================================
 // DATOS DE EJEMPLO — reemplazar por tu base real de planes
