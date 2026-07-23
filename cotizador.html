@@ -701,7 +701,7 @@ function buildExamplePlans(){
   const plans = [];
   let id = 1;
   ISAPRES.forEach(isap => {
-    const nPlanes = 3 + Math.floor(rand()*2); // 3-4 planes por isapre
+    const nPlanes = 18 + Math.floor(rand()*14); // 18-31 planes por isapre (más representativo)
     for (let i=0;i<nPlanes;i++){
       const tipoPlan = pick(TIPOS_PLAN);
       const zona = pick(ZONAS);
